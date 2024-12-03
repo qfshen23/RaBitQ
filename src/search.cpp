@@ -25,6 +25,8 @@ void test(const Matrix<float> &Q, const Matrix<float> &RandQ, const Matrix<float
     // ========================================================================
     // Search Parameter
     vector<int> nprobes;
+    nprobes.push_back(100);
+    nprobes.push_back(200);
     nprobes.push_back(300);
     // ========================================================================
     

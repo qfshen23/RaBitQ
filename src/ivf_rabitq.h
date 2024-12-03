@@ -111,30 +111,33 @@ void IVFRN<D, B>::scan(ResultHeap &KNNs, float &distK, uint32_t k, \
         }
     }
     
-    ptr_res = &res[0];
-    for(int i=it * SIZE;i<len;i++){
-        float tmp_dist = (ptr_fac -> sqr_x) + sqr_y + ptr_fac -> factor_ppc * vl + (space.ip_byte_bin(quant_query, ptr_binary_code) * 2 -sumq) * (ptr_fac -> factor_ip) * width;
-        float error_bound = y * (ptr_fac -> error);
-        *ptr_res = tmp_dist - error_bound;
-        ptr_binary_code += B / 64;
-        ptr_fac ++;
-        ptr_res ++;
+    {
+        ptr_res = &res[0];
+        for(int i=it * SIZE;i<len;i++){
+            float tmp_dist = (ptr_fac -> sqr_x) + sqr_y + ptr_fac -> factor_ppc * vl + (space.ip_byte_bin(quant_query, ptr_binary_code) * 2 -sumq) * (ptr_fac -> factor_ip) * width;
+            float error_bound = y * (ptr_fac -> error);
+            *ptr_res = tmp_dist - error_bound;
+            ptr_binary_code += B / 64;
+            ptr_fac ++;
+            ptr_res ++;
+        }
+        
+        ptr_res = &res[0];
+        for(int i=it * SIZE;i<len;i++){
+            if(*ptr_res < distK){
+                float gt_dist = sqr_dist<D>(query, data);
+                if(gt_dist < distK){
+                    KNNs.emplace(gt_dist, *id);
+                    if(KNNs.size() > k) KNNs.pop();
+                    if(KNNs.size() == k)distK = KNNs.top().first;
+                }
+            }
+            data += D;
+            ptr_res++;
+            id++;
+        }
     }
     
-    ptr_res = &res[0];
-    for(int i=it * SIZE;i<len;i++){
-        if(*ptr_res < distK){
-            float gt_dist = sqr_dist<D>(query, data);
-            if(gt_dist < distK){
-                KNNs.emplace(gt_dist, *id);
-                if(KNNs.size() > k) KNNs.pop();
-                if(KNNs.size() == k)distK = KNNs.top().first;
-            }
-        }
-        data += D;
-        ptr_res++;
-        id++;
-    }
 }
 
 template <uint32_t D, uint32_t B>
