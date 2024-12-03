@@ -1,6 +1,3 @@
-
-// The implementation is largely based on the implementation of Faiss.
-// https://github.com/facebookresearch/faiss/wiki/Fast-accumulation-of-PQ-and-AQ-codes-(FastScan)
 #pragma once
 #include <immintrin.h>
 #include <iostream>
@@ -14,6 +11,9 @@
 #define PORTABLE_ALIGN64 __attribute__((aligned(64)))
 
 using namespace std;
+
+// The implementation is largely based on the implementation of Faiss.
+// https://github.com/facebookresearch/faiss/wiki/Fast-accumulation-of-PQ-and-AQ-codes-(FastScan)
 
 // ==============================================================
 // look up the tables for a packed batch of 32 quantization codes

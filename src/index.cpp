@@ -58,7 +58,7 @@ int main(int argc, char * argv[]) {
     char cluster_id_path[256] = "";
     char binary_path[256] = "";
 
-    sprintf(data_path, "%s%s_base.fvecs", source, dataset);
+    sprintf(data_path, "%sbase.10M.fbin", source);
     Matrix<float> X(data_path);
     
     sprintf(centroid_path, "%sRandCentroid_C%d_B%d.fvecs", source, numC, BB);

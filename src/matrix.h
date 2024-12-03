@@ -142,28 +142,40 @@ Matrix<T>::Matrix(char *data_file_path){
     n = 0;
     d = 0;
     data = NULL;
-    printf("%s\n",data_file_path);
+    printf("Reading: %s\n",data_file_path);
     std::ifstream in(data_file_path, std::ios::binary);
     if (!in.is_open()) {
         std::cout << "open file error" << std::endl;
         exit(-1);
     }
-    in.read((char*)&d, 4);
-    
-    std::cerr << "Dimensionality - " <<  d <<std::endl;
-    in.seekg(0, std::ios::end);
-    std::ios::pos_type ss = in.tellg();
-    size_t fsize = (size_t)ss;
-    n = (size_t)(fsize / (sizeof(T) * d + 4));
-    // n = (size_t)(fsize / (d + 1) / 4);
-    data = new T [(size_t)n * (size_t)d + 10];
-    std::cerr << "Cardinality - " << n << std::endl;
-    in.seekg(0, std::ios::beg);
-    for (size_t i = 0; i < n; i++) {
-        in.seekg(4, std::ios::cur);
-        in.read((char*)(data + i * d), d * sizeof(T));
+    int len = strlen(data_file_path);
+    if(data_file_path[len - 1] == 'n') {
+        in.read((char*)&n, 4);
+        std::cerr << "Cardinality - " << n << std::endl;
+        in.read((char*)&d, 4);
+        std::cerr << "Dimensionality - " <<  d <<std::endl;
+        data = new T [(size_t)n * (size_t)d + 10];
+        for (size_t i = 0; i < n; i++) {
+            in.read((char*)(data + i * d), d * sizeof(T));
+        }
+        in.close();
+    } else {
+        in.read((char*)&d, 4);
+        std::cerr << "Dimensionality - " <<  d <<std::endl;
+        in.seekg(0, std::ios::end);
+        std::ios::pos_type ss = in.tellg();
+        size_t fsize = (size_t)ss;
+        n = (size_t)(fsize / (sizeof(T) * d + 4));
+        data = new T [(size_t)n * (size_t)d + 10];
+        std::cout << "Alloc " << (size_t)n * (size_t)d + 10 << " memory." << std::endl;
+        std::cerr << "Cardinality - " << n << std::endl;
+        in.seekg(0, std::ios::beg);
+        for (size_t i = 0; i < n; i++) {
+            in.seekg(4, std::ios::cur);
+            in.read((char*)(data + i * d), d * sizeof(T));
+        }
+        in.close();
     }
-    in.close();
 }
 
 template <typename T>

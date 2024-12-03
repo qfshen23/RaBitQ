@@ -2,6 +2,38 @@ import numpy as np
 import struct
 from tqdm import tqdm
 
+# for reading '.xbin' format files
+def read_vector_data(filepath, percent=100):
+    if filepath.endswith('.fbin'):
+        dtype = np.float32
+    elif filepath.endswith('.u8bin'):
+        dtype = np.uint8
+    elif filepath.endswith('.i8bin'):
+        dtype = np.int8
+    elif filepath.endswith('.ibin'):
+        dtype = np.int32
+    else:
+        raise ValueError("Unsupported file type")
+    
+    with open(filepath, 'rb') as file:
+        header = np.frombuffer(file.read(8), dtype=np.uint32)
+        num_points = np.int64(header[0])
+        num_dimensions = np.int64(header[1])
+
+        print(f"Reading No. of Points: {num_points}, No. of Dimensions: {num_dimensions}")
+        total_elements = int((percent / 100) * num_points * num_dimensions)
+        
+        # Check total_elements does not exceed limits before attempting to read
+        try:
+            data = np.frombuffer(file.read(total_elements * dtype().itemsize), dtype=dtype)
+            num_points_to_reshape = total_elements // num_dimensions
+            data = data.reshape(num_points_to_reshape, num_dimensions)
+        except MemoryError:
+            raise MemoryError("Not enough memory to reshape the data. Consider processing in chunks.")
+        
+    return data
+
+# for reading '.fvecs' format files
 def read_fvecs(filename, c_contiguous=True):
     print(f"Reading from {filename}.")
     fv = np.fromfile(filename, dtype=np.float32)

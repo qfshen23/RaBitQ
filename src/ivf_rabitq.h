@@ -97,13 +97,12 @@ void IVFRN<D, B>::scan(ResultHeap &KNNs, float &distK, uint32_t k, \
         
         ptr_res = &res[0];
         for(int j=0;j<SIZE;j++){
-            if(*ptr_res < distK){
-                
+            if(*ptr_res < distK) {
                 float gt_dist = sqr_dist<D>(query, data);
                 if(gt_dist < distK){
                     KNNs.emplace(gt_dist, *id);
                     if(KNNs.size() > k) KNNs.pop();
-                    if(KNNs.size() == k)distK = KNNs.top().first;
+                    if(KNNs.size() == k) distK = KNNs.top().first;
                 }
             }
             data += D;
@@ -169,14 +168,13 @@ void IVFRN<D, B>::fast_scan(ResultHeap &KNNs, float &distK, uint32_t k, \
         }
         ptr_low_dist = &low_dist[0];
         for(int j=0;j<SIZE;j++){
-            if(*ptr_low_dist < distK){
-                
+            if(*ptr_low_dist < distK) {
                 float gt_dist = sqr_dist<D>(query, data);
                 // cerr << *ptr_low_dist << " " << gt_dist << endl;
                 if(gt_dist < distK){
                     KNNs.emplace(gt_dist, *id);
                     if(KNNs.size() > k) KNNs.pop();
-                    if(KNNs.size() == k)distK = KNNs.top().first;
+                    if(KNNs.size() == k) distK = KNNs.top().first;
                 }
             }
             data += D;
@@ -299,8 +297,8 @@ void IVFRN<D, B>::save(char * filename){
     output.write((char *) x0        , N * sizeof(float));
 
     output.write((char *) centroid, C * B * sizeof(float));
-    output.write((char *) data, N * D * sizeof(float));
-    output.write((char *) binary_code, N * B / 64 * sizeof(uint64_t));
+    output.write((char *) data, (unsigned long long)N * D * sizeof(float));
+    output.write((char *) binary_code, (unsigned long long)N * B / 64 * sizeof(uint64_t));
     
     output.close();
     std::cerr << "Saved!" << std::endl;
@@ -321,11 +319,9 @@ void IVFRN<D, B>::load(char * filename){
     input.read((char *) &d, sizeof(uint32_t));
     input.read((char *) &C, sizeof(uint32_t));
     input.read((char *) &b, sizeof(uint32_t));
-
     std::cerr << d << std::endl;
     assert(d == D);
     assert(b == B);
-
     u = new float [B];
 #if defined(RANDOM_QUERY_QUANTIZATION)
     std::random_device rd;
@@ -335,11 +331,9 @@ void IVFRN<D, B>::load(char * filename){
 #else 
     for(int i=0;i<B;i++)u[i] = 0.5;
 #endif 
-
     centroid     = new float [C * B];
-    data         = new float [N * D];
-
-    binary_code  = static_cast<uint64_t*>(aligned_alloc(256, N * B / 64 * sizeof(uint64_t)));
+    data         = new float [(unsigned long long)N * D];
+    binary_code  = static_cast<uint64_t*>(aligned_alloc(256, (unsigned long long)N * B / 64 * sizeof(uint64_t)));
 
     start        = new uint32_t [C];
     len          = new uint32_t [C];
@@ -356,9 +350,8 @@ void IVFRN<D, B>::load(char * filename){
     input.read((char *) x0         , N * sizeof(float));
     
     input.read((char *) centroid   , C * B * sizeof(float));
-    input.read((char *) data, N * D * sizeof(float));
-    input.read((char *) binary_code, N * B / 64 * sizeof(uint64_t));
-
+    input.read((char *) data, (unsigned long long)N * D * sizeof(float));
+    input.read((char *) binary_code, (unsigned long long)N * B / 64 * sizeof(uint64_t));
 #if defined(FAST_SCAN)
     packed_start = new uint32_t [C];
     int cur = 0;
@@ -366,6 +359,7 @@ void IVFRN<D, B>::load(char * filename){
         packed_start[i] = cur;
         cur += (len[i] + 31) / 32 * 32 * B / 8;
     }
+    /// 
     packed_code = static_cast<uint8_t*>(aligned_alloc(32, cur * sizeof(uint8_t)));
     for(int i=0;i<C;i++){
         pack_codes<B>(binary_code + start[i] * (B / 64), len[i], packed_code + packed_start[i]);
@@ -434,13 +428,12 @@ IVFRN<D, B>::IVFRN(const Matrix<float> &X, const Matrix<float> &_centroids, cons
     }
 
     centroid        = new float [C * B];
-    data            = new float [N * D];
-    binary_code     = new uint64_t [N * B / 64];
+    data            = new float [(unsigned long long)N * D];
+    binary_code     = new uint64_t [(unsigned long long)B * N / 64];
 
     std::memcpy(centroid, _centroids.data, C * B * sizeof(float));
     float * data_ptr = data;
     uint64_t * binary_code_ptr = binary_code;
-
     for(int i=0;i<N;i++){
         int x = id[i];
         std::memcpy(data_ptr, X.data + x * D, D * sizeof(float));

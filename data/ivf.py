@@ -5,16 +5,15 @@ import struct
 import os
 from utils.io import *
 
-source = './'
+source = './data/'
 
 if __name__ == '__main__':
-
-    dataset = 'sift'
+    dataset = 'laion-10M'
     print(f"Clustering - {dataset}")
     # path
     path = os.path.join(source, dataset)
-    data_path = os.path.join(path, f'{dataset}_base.fvecs')
-    X = read_fvecs(data_path)
+    data_path = os.path.join(path, f'base.10M.fbin')
+    X = read_vector_data(data_path)
     D = X.shape[1]    
     K = 4096
     centroids_path = os.path.join(path, f'{dataset}_centroid_{K}.fvecs')
@@ -32,3 +31,4 @@ if __name__ == '__main__':
     to_fvecs(dist_to_centroid_path, dist_to_centroid)
     to_ivecs(cluster_id_path, cluster_id)
     to_fvecs(centroids_path, centroids)
+    

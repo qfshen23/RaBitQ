@@ -109,15 +109,15 @@ int main(int argc, char * argv[]) {
     // ================================================================================================================================
     // Data Files
     char query_path[256] = "";
-    sprintf(query_path, "%s%s_query.fvecs", source, dataset);
+    sprintf(query_path, "%squery.10k.fbin", source);
     Matrix<float> Q(query_path);
 
     char data_path[256] = "";
-    sprintf(data_path, "%s%s_base.fvecs", source, dataset);
+    sprintf(data_path, "%sbase.10M.fbin", source);
     Matrix<float> X(data_path);
 
     char groundtruth_path[256] = "";
-    sprintf(groundtruth_path, "%s%s_groundtruth.ivecs", source, dataset);
+    sprintf(groundtruth_path, "%sgt.10k.ibin", source);
     Matrix<unsigned> G(groundtruth_path);
     
     char transformation_path[256] = "";
@@ -136,10 +136,7 @@ int main(int argc, char * argv[]) {
 #endif
     std::cerr << "Loading Succeed!" << std::endl;
     // ================================================================================================================================
-
-
     freopen(result_file_view,"a",stdout);
-    
     IVFRN<DIM, BB> ivf;
     ivf.load(index_path);
     
